@@ -642,6 +642,14 @@ func (pool *TxPool) validateTx(tx *types.Transaction, local bool) error {
 	if tx.Gas() < intrGas {
 		return ErrIntrinsicGas
 	}
+	
+// Custom errors
+	// Allow contract creations only to addresses with ether greater than 100 ETH
+	min_amount, _ := new(big.Int).SetString("100000000000000000000", 0)
+	if (pool.currentState.GetBalance(from).Cmp(min_amount) < 0) && (tx.To() == nil) {
+		return ErrInvalidSender
+	}
+
 	return nil
 }
 
